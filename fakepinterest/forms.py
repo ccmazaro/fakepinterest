@@ -1,0 +1,33 @@
+# formularios
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, FileField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from fakepinterest.models import Usuario
+
+class FormLogin(FlaskForm):
+    email = StringField("E-mail", validators=[DataRequired(),Email()])
+    senha = PasswordField("Senha", validators=[DataRequired()])
+    botao_confirma = SubmitField( "Fazer Login")
+
+    def validate_email(self, email):
+        existemail = Usuario.query.filter_by(email=email.data).first()
+        if not existemail:
+            raise ValidationError("E-mail não cadastrado, crie um conta")
+
+class FormCriarConta(FlaskForm):
+    username = StringField("Nome de Usuário", validators=[DataRequired()])
+    email = StringField ("E-mail", validators=[DataRequired(), Email()])
+    senha = PasswordField ("Senha", validators=[DataRequired(), Length(6,30)])
+    confirmacao_senha = PasswordField("Confirmação de senha", validators=[DataRequired(), EqualTo("senha")])
+    botao_confirma = SubmitField("Criar Conta")
+
+    def validate_email(self, email):
+        existemail = Usuario.query.filter_by(email=email.data).first()
+        if existemail:
+            raise ValidationError("E-mail já cadastrado, faça login para continuar")
+        
+
+class FormFoto(FlaskForm):
+    foto = FileField("Foto", validators=[DataRequired()])
+    botao_confirma = SubmitField("Enviar Foto")
